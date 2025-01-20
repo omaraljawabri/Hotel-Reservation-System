@@ -5,6 +5,7 @@ import com.omar.hotel_reservation.dtos.request.HotelRequestDTO;
 import com.omar.hotel_reservation.entities.Hotel;
 import com.omar.hotel_reservation.service.HotelService;
 import com.omar.hotel_reservation.specifications.HotelQueryFilter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,12 @@ public class HotelController {
     private final HotelService hotelService;
 
     @PostMapping
-    public ResponseEntity<Hotel> createHotel(@RequestBody HotelRequestDTO hotelRequestDTO){
+    public ResponseEntity<Hotel> createHotel(@RequestBody @Valid HotelRequestDTO hotelRequestDTO){
         return new ResponseEntity<>(hotelService.createHotel(hotelRequestDTO) ,HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<Hotel> updateHotel(@RequestBody HotelPutRequestDTO hotelPutRequestDTO){
+    public ResponseEntity<Hotel> updateHotel(@RequestBody @Valid HotelPutRequestDTO hotelPutRequestDTO){
         return ResponseEntity.ok(hotelService.updateHotel(hotelPutRequestDTO));
     }
 
