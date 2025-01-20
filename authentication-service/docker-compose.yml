@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   postgres:
+    container_name: authentication
     image: postgres
     environment:
       POSTGRES_USER: postgres
