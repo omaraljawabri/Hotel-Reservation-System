@@ -33,5 +33,8 @@ public class Hotel {
     private String postalCode;
 
     @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Enumerated(EnumType.STRING)
     private Category category;
 }
