@@ -10,7 +10,7 @@ services:
     expose:
       - "5433"
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
       - postgres-data-hotel:/var/lib/postgresql/data
 

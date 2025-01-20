@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS tb_hotel
     country varchar(255) NOT NULL,
     state varchar(255) NOT NULL,
     city varchar(255) NOT NULL,
-    postalCode varchar(255),
+    postal_code varchar(255),
     category varchar(50)
 );
