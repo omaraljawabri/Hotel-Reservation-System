@@ -1,0 +1,15 @@
+INSERT INTO tb_room (room_number, hotel_id, capacity, type, status)
+VALUES
+(101, 1, 2, 'SINGLE', 'AVAILABLE'),
+(102, 1, 4, 'FAMILY', 'OCCUPIED'),
+(201, 2, 2, 'DOUBLE', 'RESERVED'),
+(301, 3, 2, 'TWIN', 'MAINTENANCE'),
+(401, 4, 1, 'SINGLE', 'AVAILABLE'),
+(501, 5, 5, 'SUITE', 'OCCUPIED'),
+(601, 6, 2, 'DELUXE', 'AVAILABLE'),
+(701, 7, 6, 'FAMILY', 'MAINTENANCE'),
+(801, 8, 2, 'DOUBLE', 'RESERVED'),
+(901, 9, 3, 'TWIN', 'AVAILABLE'),
+(1001, 10, 4, 'SUITE', 'OCCUPIED'),
+(1101, 11, 2, 'DELUXE', 'AVAILABLE'),
+(1201, 15, 1, 'SINGLE', 'RESERVED');
