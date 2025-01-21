@@ -6,6 +6,7 @@ import com.omar.hotel_reservation.dtos.response.ReservationGetResponseDTO;
 import com.omar.hotel_reservation.dtos.response.ReservationResponseDTO;
 import com.omar.hotel_reservation.dtos.response.UserReservationResponseDTO;
 import com.omar.hotel_reservation.services.ReservationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ReservationResponseDTO> createReservation(@RequestBody ReservationRequestDTO reservationRequestDTO){
+    public ResponseEntity<ReservationResponseDTO> createReservation(@RequestBody @Valid ReservationRequestDTO reservationRequestDTO){
         return new ResponseEntity<>(reservationService.createReservation(reservationRequestDTO), HttpStatus.CREATED);
     }
 
@@ -32,7 +33,7 @@ public class ReservationController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateReservation(@RequestBody ReservationPutRequestDTO reservationPutRequestDTO){
+    public ResponseEntity<Void> updateReservation(@RequestBody @Valid ReservationPutRequestDTO reservationPutRequestDTO){
         reservationService.updateReservation(reservationPutRequestDTO);
         return ResponseEntity.ok().build();
     }
