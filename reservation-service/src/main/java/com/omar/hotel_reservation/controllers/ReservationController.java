@@ -1,6 +1,7 @@
 package com.omar.hotel_reservation.controllers;
 
 import com.omar.hotel_reservation.dtos.request.ReservationRequestDTO;
+import com.omar.hotel_reservation.dtos.response.ReservationGetResponseDTO;
 import com.omar.hotel_reservation.dtos.response.ReservationResponseDTO;
 import com.omar.hotel_reservation.dtos.response.UserReservationResponseDTO;
 import com.omar.hotel_reservation.services.ReservationService;
@@ -37,6 +38,11 @@ public class ReservationController {
     @GetMapping("/confirmed/user/{user-id}")
     public ResponseEntity<List<UserReservationResponseDTO>> findConfirmedReservationByUserId(@PathVariable("user-id") Long userId){
         return ResponseEntity.ok(reservationService.findConfirmedByUserId(userId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReservationGetResponseDTO> findReservationById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(reservationService.findById(id));
     }
 }
 

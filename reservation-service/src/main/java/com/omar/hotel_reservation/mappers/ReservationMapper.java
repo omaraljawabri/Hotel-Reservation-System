@@ -50,4 +50,17 @@ public class ReservationMapper {
                 roomResponseDTO
         );
     }
+
+    public ReservationGetResponseDTO toReservationGetResponse(Reservation reservation){
+        return new ReservationGetResponseDTO(
+                reservation.getId(),
+                reservation.getHotelId(),
+                reservation.getRoomId(),
+                reservation.getCheckInDate(),
+                reservation.getCheckOutDate(),
+                reservation.getBookingDate(),
+                reservation.getCancellationDate(),
+                reservation.getStatus()
+        );
+    }
 }
