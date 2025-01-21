@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,22 @@ public class ReservationService {
         return forEachReservation(reservations);
     }
 
+    public void cancelReservation(Long id, Long userId) {
+        Reservation reservation = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", id)));
+        if (!Objects.equals(reservation.getUserId(), userId)){
+            throw new EntityDoesntBelongException(String.format("Reservation with id %d doesn't belong to user with id %d", reservation.getId(), userId));
+        }
+        if (reservation.getCheckInDate().isBefore(LocalDate.now()) || reservation.getCheckInDate().equals(LocalDate.now())){
+            throw new BusinessException("Your reservation time has already started, you can no longer cancel the reservation");
+        }
+        reservation.setStatus(Status.CANCELLED);
+        repository.save(reservation);
+        // to do -> send e-mail to user
+        RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
+        updateRoom(roomResponseDTO, RoomStatus.AVAILABLE);
+    }
+
     private UserResponseDTO validateUser(Long userId){
         return userClient.findUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException(String.format("User with id: %d, not found", userId)));
@@ -101,18 +118,5 @@ public class ReservationService {
             userReservationResponseDTOS.add(mapper.toUserReservationResponse(reservation, hotelResponseDTO, roomResponseDTO));
         }
         return userReservationResponseDTOS;
-    }
-
-    public void cancelReservation(Long id, Long userId) {
-        Reservation reservation = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", id)));
-        if (!Objects.equals(reservation.getUserId(), userId)){
-            throw new EntityDoesntBelongException(String.format("Reservation with id %d doesn't belong to user with id %d", reservation.getId(), userId));
-        }
-        reservation.setStatus(Status.CANCELLED);
-        repository.save(reservation);
-        // to do -> send e-mail to user
-        RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
-        updateRoom(roomResponseDTO, RoomStatus.AVAILABLE);
     }
 }
