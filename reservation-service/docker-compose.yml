@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  postgres:
+    container_name: reservation
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reservation-db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-data-reservation:/var/lib/postgresql/data
+
+volumes:
+  postgres-data-reservation:
