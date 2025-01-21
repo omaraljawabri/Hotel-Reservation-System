@@ -42,9 +42,6 @@ public class ReservationService {
         if (!Objects.equals(roomResponseDTO.hotelId(), hotelResponseDTO.id())){
             throw new EntityDoesntBelongException(String.format("Room with id: %d doesn't belong to Hotel with id: %d", roomResponseDTO.id(), hotelResponseDTO.id()));
         }
-        if (repository.findByUserId(userResponseDTO.id()).isPresent()){
-            throw new BusinessException(String.format("User with id: %d, already have a reservation", userResponseDTO.id()));
-        }
         Reservation reservation = mapper.toReservation(reservationRequestDTO);
         reservation.setBookingDate(LocalDateTime.now());
         reservation.setStatus(Status.PENDING);
