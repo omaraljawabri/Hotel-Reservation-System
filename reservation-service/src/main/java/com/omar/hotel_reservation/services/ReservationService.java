@@ -4,6 +4,7 @@ import com.omar.hotel_reservation.clients.HotelClient;
 import com.omar.hotel_reservation.clients.RoomClient;
 import com.omar.hotel_reservation.clients.UserClient;
 import com.omar.hotel_reservation.dtos.request.ReservationRequestDTO;
+import com.omar.hotel_reservation.dtos.request.RoomRequestDTO;
 import com.omar.hotel_reservation.dtos.response.*;
 import com.omar.hotel_reservation.entities.Reservation;
 import com.omar.hotel_reservation.entities.Status;
@@ -12,9 +13,12 @@ import com.omar.hotel_reservation.exceptions.EntityDoesntBelongException;
 import com.omar.hotel_reservation.exceptions.UserNotFoundException;
 import com.omar.hotel_reservation.mappers.ReservationMapper;
 import com.omar.hotel_reservation.repositories.ReservationRepository;
+import com.omar.hotel_reservation.utils.HotelStatus;
+import com.omar.hotel_reservation.utils.RoomStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,6 +35,7 @@ public class ReservationService {
     private final RoomClient roomClient;
     private final ReservationMapper mapper;
 
+    @Transactional
     public ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO) {
         UserResponseDTO userResponseDTO = validateUser(reservationRequestDTO.userId());
         HotelResponseDTO hotelResponseDTO = validateHotel(reservationRequestDTO.hotelId());
@@ -38,10 +43,14 @@ public class ReservationService {
         if (!Objects.equals(roomResponseDTO.hotelId(), hotelResponseDTO.id())){
             throw new EntityDoesntBelongException(String.format("Room with id: %d doesn't belong to Hotel with id: %d", roomResponseDTO.id(), hotelResponseDTO.id()));
         }
+        if (roomResponseDTO.status() != RoomStatus.AVAILABLE || hotelResponseDTO.status() != HotelStatus.ACTIVE){
+            throw new BusinessException(String.format("Room with id: %d or Hotel with id: %d are not available", roomResponseDTO.id(), hotelResponseDTO.id()));
+        }
         Reservation reservation = mapper.toReservation(reservationRequestDTO);
         reservation.setBookingDate(LocalDateTime.now());
         reservation.setStatus(Status.PENDING);
         // to do -> send email to user
+        updateRoom(roomResponseDTO);
         Reservation reservationSaved = repository.save(reservation);
         return mapper.toReservationResponse(reservationSaved, userResponseDTO, hotelResponseDTO, roomResponseDTO);
     }
@@ -71,5 +80,16 @@ public class ReservationService {
     private RoomResponseDTO validateRoom(Long roomId){
         return roomClient.findRoomById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", roomId)));
+    }
+
+    private void updateRoom(RoomResponseDTO roomResponseDTO){
+        roomClient.updateRoom(new RoomRequestDTO(
+                roomResponseDTO.id(),
+                roomResponseDTO.roomNumber(),
+                roomResponseDTO.hotelId(),
+                roomResponseDTO.capacity(),
+                roomResponseDTO.type(),
+                RoomStatus.RESERVED
+        ));
     }
 }
