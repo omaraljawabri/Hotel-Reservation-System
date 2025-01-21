@@ -4,6 +4,7 @@ import com.omar.hotel_reservation.dtos.request.ChangePasswordRequestDTO;
 import com.omar.hotel_reservation.dtos.request.LoginRequestDTO;
 import com.omar.hotel_reservation.dtos.request.RegisterRequestDTO;
 import com.omar.hotel_reservation.dtos.response.LoginResponseDTO;
+import com.omar.hotel_reservation.dtos.response.UserResponseDTO;
 import com.omar.hotel_reservation.entities.ChangePassword;
 import com.omar.hotel_reservation.entities.User;
 import com.omar.hotel_reservation.exceptions.InvalidCodeException;
@@ -69,5 +70,11 @@ public class UserService {
 
     public void saveUser(User user){
         userRepository.save(user);
+    }
+
+    public UserResponseDTO findById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User with id: " + id + " not found"));
+        return mapper.toUserResponse(user);
     }
 }
