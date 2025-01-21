@@ -33,12 +33,9 @@ public class ReservationService {
     private final ReservationMapper mapper;
 
     public ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO) {
-        UserResponseDTO userResponseDTO = userClient.findUserById(reservationRequestDTO.userId())
-                .orElseThrow(() -> new UserNotFoundException(String.format("User with id: %d, not found", reservationRequestDTO.userId())));
-        HotelResponseDTO hotelResponseDTO = hotelClient.findHotelById(reservationRequestDTO.hotelId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id: %d, not found", reservationRequestDTO.hotelId())));
-        RoomResponseDTO roomResponseDTO = roomClient.findRoomById(reservationRequestDTO.roomId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", reservationRequestDTO.roomId())));
+        UserResponseDTO userResponseDTO = validateUser(reservationRequestDTO.userId());
+        HotelResponseDTO hotelResponseDTO = validateHotel(reservationRequestDTO.hotelId());
+        RoomResponseDTO roomResponseDTO = validateRoom(reservationRequestDTO.roomId());
         if (!Objects.equals(roomResponseDTO.hotelId(), hotelResponseDTO.id())){
             throw new EntityDoesntBelongException(String.format("Room with id: %d doesn't belong to Hotel with id: %d", roomResponseDTO.id(), hotelResponseDTO.id()));
         }
@@ -48,5 +45,20 @@ public class ReservationService {
         // to do -> send email to user
         Reservation reservationSaved = repository.save(reservation);
         return mapper.toReservationResponse(reservationSaved, userResponseDTO, hotelResponseDTO, roomResponseDTO);
+    }
+
+    private UserResponseDTO validateUser(Long userId){
+        return userClient.findUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id: %d, not found", userId)));
+    }
+
+    private HotelResponseDTO validateHotel(Long hotelId){
+        return hotelClient.findHotelById(hotelId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id: %d, not found", hotelId)));
+    }
+
+    private RoomResponseDTO validateRoom(Long roomId){
+        return roomClient.findRoomById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", roomId)));
     }
 }
