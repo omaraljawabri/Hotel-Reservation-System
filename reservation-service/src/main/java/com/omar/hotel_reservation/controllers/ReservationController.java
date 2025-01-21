@@ -23,6 +23,12 @@ public class ReservationController {
         return new ResponseEntity<>(reservationService.createReservation(reservationRequestDTO), HttpStatus.CREATED);
     }
 
+    @PostMapping("/cancel/{id}/{user-id}")
+    public ResponseEntity<Void> cancelReservation(@PathVariable("id") Long id, @PathVariable("user-id") Long userId){
+        reservationService.cancelReservation(id, userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/user/{user-id}")
     public ResponseEntity<List<UserReservationResponseDTO>> findReservationByUserId(@PathVariable("user-id") Long userId){
         return ResponseEntity.ok(reservationService.findByUserId(userId));
@@ -33,3 +39,4 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.findConfirmedByUserId(userId));
     }
 }
+

@@ -50,7 +50,7 @@ public class ReservationService {
         reservation.setBookingDate(LocalDateTime.now());
         reservation.setStatus(Status.PENDING);
         // to do -> send email to user
-        updateRoom(roomResponseDTO);
+        updateRoom(roomResponseDTO, RoomStatus.RESERVED);
         Reservation reservationSaved = repository.save(reservation);
         return mapper.toReservationResponse(reservationSaved, userResponseDTO, hotelResponseDTO, roomResponseDTO);
     }
@@ -82,14 +82,14 @@ public class ReservationService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", roomId)));
     }
 
-    private void updateRoom(RoomResponseDTO roomResponseDTO){
+    private void updateRoom(RoomResponseDTO roomResponseDTO, RoomStatus status){
         roomClient.updateRoom(new RoomRequestDTO(
                 roomResponseDTO.id(),
                 roomResponseDTO.roomNumber(),
                 roomResponseDTO.hotelId(),
                 roomResponseDTO.capacity(),
                 roomResponseDTO.type(),
-                RoomStatus.RESERVED
+                status
         ));
     }
 
@@ -101,5 +101,18 @@ public class ReservationService {
             userReservationResponseDTOS.add(mapper.toUserReservationResponse(reservation, hotelResponseDTO, roomResponseDTO));
         }
         return userReservationResponseDTOS;
+    }
+
+    public void cancelReservation(Long id, Long userId) {
+        Reservation reservation = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", id)));
+        if (!Objects.equals(reservation.getUserId(), userId)){
+            throw new EntityDoesntBelongException(String.format("Reservation with id %d doesn't belong to user with id %d", reservation.getId(), userId));
+        }
+        reservation.setStatus(Status.CANCELLED);
+        repository.save(reservation);
+        // to do -> send e-mail to user
+        RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
+        updateRoom(roomResponseDTO, RoomStatus.AVAILABLE);
     }
 }
