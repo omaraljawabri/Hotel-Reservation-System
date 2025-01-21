@@ -9,6 +9,7 @@ public record ReservationGetResponseDTO(
         Long id,
         Long hotelId,
         Long roomId,
+        Long userId,
         LocalDate checkInDate,
         LocalDate checkOutDate,
         LocalDateTime bookingDate,

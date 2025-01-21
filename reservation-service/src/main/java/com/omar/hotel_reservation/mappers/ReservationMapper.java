@@ -56,6 +56,7 @@ public class ReservationMapper {
                 reservation.getId(),
                 reservation.getHotelId(),
                 reservation.getRoomId(),
+                reservation.getUserId(),
                 reservation.getCheckInDate(),
                 reservation.getCheckOutDate(),
                 reservation.getBookingDate(),
