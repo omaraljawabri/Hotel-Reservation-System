@@ -27,4 +27,9 @@ public class ReservationController {
     public ResponseEntity<List<UserReservationResponseDTO>> findReservationByUserId(@PathVariable("user-id") Long userId){
         return ResponseEntity.ok(reservationService.findByUserId(userId));
     }
+
+    @GetMapping("/confirmed/user/{user-id}")
+    public ResponseEntity<List<UserReservationResponseDTO>> findConfirmedReservationByUserId(@PathVariable("user-id") Long userId){
+        return ResponseEntity.ok(reservationService.findConfirmedByUserId(userId));
+    }
 }

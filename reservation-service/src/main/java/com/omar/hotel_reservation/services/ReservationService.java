@@ -58,13 +58,13 @@ public class ReservationService {
     public List<UserReservationResponseDTO> findByUserId(Long userId) {
         UserResponseDTO userResponseDTO = validateUser(userId);
         List<Reservation> reservations = repository.findAllByUserId(userResponseDTO.id());
-        List<UserReservationResponseDTO> userReservationResponseDTOS = new ArrayList<>();
-        for (Reservation reservation : reservations){
-            HotelResponseDTO hotelResponseDTO = validateHotel(reservation.getHotelId());
-            RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
-            userReservationResponseDTOS.add(mapper.toUserReservationResponse(reservation, hotelResponseDTO, roomResponseDTO));
-        }
-        return userReservationResponseDTOS;
+        return forEachReservation(reservations);
+    }
+
+    public List<UserReservationResponseDTO> findConfirmedByUserId(Long userId) {
+        UserResponseDTO userResponseDTO = validateUser(userId);
+        List<Reservation> reservations = repository.findAllByUserIdAndStatus(userResponseDTO.id(), Status.CONFIRMED);
+        return forEachReservation(reservations);
     }
 
     private UserResponseDTO validateUser(Long userId){
@@ -91,5 +91,15 @@ public class ReservationService {
                 roomResponseDTO.type(),
                 RoomStatus.RESERVED
         ));
+    }
+
+    private List<UserReservationResponseDTO> forEachReservation(List<Reservation> reservations){
+        List<UserReservationResponseDTO> userReservationResponseDTOS = new ArrayList<>();
+        for (Reservation reservation : reservations){
+            HotelResponseDTO hotelResponseDTO = validateHotel(reservation.getHotelId());
+            RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
+            userReservationResponseDTOS.add(mapper.toUserReservationResponse(reservation, hotelResponseDTO, roomResponseDTO));
+        }
+        return userReservationResponseDTOS;
     }
 }
