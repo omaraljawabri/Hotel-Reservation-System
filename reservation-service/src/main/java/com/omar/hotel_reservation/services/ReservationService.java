@@ -4,10 +4,7 @@ import com.omar.hotel_reservation.clients.HotelClient;
 import com.omar.hotel_reservation.clients.RoomClient;
 import com.omar.hotel_reservation.clients.UserClient;
 import com.omar.hotel_reservation.dtos.request.ReservationRequestDTO;
-import com.omar.hotel_reservation.dtos.response.HotelResponseDTO;
-import com.omar.hotel_reservation.dtos.response.ReservationResponseDTO;
-import com.omar.hotel_reservation.dtos.response.RoomResponseDTO;
-import com.omar.hotel_reservation.dtos.response.UserResponseDTO;
+import com.omar.hotel_reservation.dtos.response.*;
 import com.omar.hotel_reservation.entities.Reservation;
 import com.omar.hotel_reservation.entities.Status;
 import com.omar.hotel_reservation.exceptions.BusinessException;
@@ -20,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -45,6 +44,18 @@ public class ReservationService {
         // to do -> send email to user
         Reservation reservationSaved = repository.save(reservation);
         return mapper.toReservationResponse(reservationSaved, userResponseDTO, hotelResponseDTO, roomResponseDTO);
+    }
+
+    public List<UserReservationResponseDTO> findByUserId(Long userId) {
+        UserResponseDTO userResponseDTO = validateUser(userId);
+        List<Reservation> reservations = repository.findAllByUserId(userResponseDTO.id());
+        List<UserReservationResponseDTO> userReservationResponseDTOS = new ArrayList<>();
+        for (Reservation reservation : reservations){
+            HotelResponseDTO hotelResponseDTO = validateHotel(reservation.getHotelId());
+            RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
+            userReservationResponseDTOS.add(mapper.toUserReservationResponse(reservation, hotelResponseDTO, roomResponseDTO));
+        }
+        return userReservationResponseDTOS;
     }
 
     private UserResponseDTO validateUser(Long userId){
