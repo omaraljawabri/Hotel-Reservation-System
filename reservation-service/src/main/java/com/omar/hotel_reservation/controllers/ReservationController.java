@@ -1,5 +1,6 @@
 package com.omar.hotel_reservation.controllers;
 
+import com.omar.hotel_reservation.dtos.request.ReservationPutRequestDTO;
 import com.omar.hotel_reservation.dtos.request.ReservationRequestDTO;
 import com.omar.hotel_reservation.dtos.response.ReservationGetResponseDTO;
 import com.omar.hotel_reservation.dtos.response.ReservationResponseDTO;
@@ -27,6 +28,12 @@ public class ReservationController {
     @PostMapping("/cancel/{id}/{user-id}")
     public ResponseEntity<Void> cancelReservation(@PathVariable("id") Long id, @PathVariable("user-id") Long userId){
         reservationService.cancelReservation(id, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<Void> updateReservation(@RequestBody ReservationPutRequestDTO reservationPutRequestDTO){
+        reservationService.updateReservation(reservationPutRequestDTO);
         return ResponseEntity.ok().build();
     }
 

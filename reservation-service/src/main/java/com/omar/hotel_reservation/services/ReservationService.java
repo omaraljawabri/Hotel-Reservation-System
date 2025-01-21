@@ -3,6 +3,7 @@ package com.omar.hotel_reservation.services;
 import com.omar.hotel_reservation.clients.HotelClient;
 import com.omar.hotel_reservation.clients.RoomClient;
 import com.omar.hotel_reservation.clients.UserClient;
+import com.omar.hotel_reservation.dtos.request.ReservationPutRequestDTO;
 import com.omar.hotel_reservation.dtos.request.ReservationRequestDTO;
 import com.omar.hotel_reservation.dtos.request.RoomRequestDTO;
 import com.omar.hotel_reservation.dtos.response.*;
@@ -82,6 +83,35 @@ public class ReservationService {
         // to do -> send e-mail to user
         RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
         updateRoom(roomResponseDTO, RoomStatus.AVAILABLE);
+    }
+
+    public ReservationGetResponseDTO findById(Long id) {
+        return repository.findById(id).map(mapper::toReservationGetResponse)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", id)));
+    }
+
+    public void updateReservation(ReservationPutRequestDTO reservationPutRequestDTO) {
+        Reservation reservation = repository.findById(reservationPutRequestDTO.id())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Entity with id: %d, not found", reservationPutRequestDTO.id())));
+        if (reservationPutRequestDTO.hotelId() != null){
+            reservation.setHotelId(reservationPutRequestDTO.hotelId());
+        }
+        if (reservationPutRequestDTO.userId() != null){
+            reservation.setUserId(reservationPutRequestDTO.userId());
+        }
+        if (reservationPutRequestDTO.roomId() != null){
+            reservation.setRoomId(reservationPutRequestDTO.roomId());
+        }
+        if (reservationPutRequestDTO.checkInDate() != null){
+            reservation.setCheckInDate(reservationPutRequestDTO.checkInDate());
+        }
+        if (reservationPutRequestDTO.checkOutDate() != null){
+            reservation.setCheckOutDate(reservationPutRequestDTO.checkOutDate());
+        }
+        if (reservationPutRequestDTO.status() != null){
+            reservation.setStatus(reservationPutRequestDTO.status());
+        }
+        repository.save(reservation);
     }
 
     private UserResponseDTO validateUser(Long userId){
