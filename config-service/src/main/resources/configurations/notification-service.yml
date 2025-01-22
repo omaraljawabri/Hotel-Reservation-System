@@ -1,0 +1,26 @@
+server:
+  port: 8050
+spring:
+  data:
+    mongodb:
+      username: omar
+      password: omar
+      host: localhost
+      port: 27017
+      database: notification-db
+      authentication-database: admin
+  mail:
+    host: localhost
+    port: 1025
+    username: omar
+    password: omar
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enabled: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
