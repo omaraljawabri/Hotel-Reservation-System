@@ -26,26 +26,28 @@ public class KafkaConsumer {
     public void consumeRegisterConfirmation(AuthConfirmation authConfirmation) throws MessagingException {
         log.info("Consuming records from topic: register-topic");
         notificationService.sendEmail(NotificationType.REGISTER_CONFIRMATION, LocalDateTime.now(), authConfirmation);
-        emailService.sendAuthEmail(authConfirmation, "register-confirmation");
+        emailService.sendAuthEmail(authConfirmation, "register-confirmation", "Account confirmation");
     }
 
     @KafkaListener(topics = "change-password-topic")
     public void consumeChangePasswordConfirmation(AuthConfirmation authConfirmation) throws MessagingException {
         log.info("Consuming records from topic: change-password-topic");
         notificationService.sendEmail(NotificationType.CHANGE_PASSWORD_CONFIRMATION, LocalDateTime.now(), authConfirmation);
-        emailService.sendAuthEmail(authConfirmation, "change-password-confirmation");
+        emailService.sendAuthEmail(authConfirmation, "change-password-confirmation", "Change password confirmation");
     }
 
     @KafkaListener(topics = "confirm-reservation-topic")
-    public void consumeConfirmReservation(ReservationKafka reservationKafka){
+    public void consumeConfirmReservation(ReservationKafka reservationKafka) throws MessagingException {
         log.info("Consuming records from topic: confirm-reservation-topic");
         notificationService.sendEmail(NotificationType.CONFIRM_RESERVATION, LocalDateTime.now(), reservationKafka);
+        emailService.sendReservationEmail(reservationKafka, "confirm-reservation", "Confirm reservation");
     }
 
     @KafkaListener(topics = "cancel-reservation-topic")
-    public void consumeCancelReservation(ReservationKafka reservationKafka){
+    public void consumeCancelReservation(ReservationKafka reservationKafka) throws MessagingException {
         log.info("Consuming records from topic: cancel-reservation-topic");
         notificationService.sendEmail(NotificationType.CANCEL_RESERVATION, LocalDateTime.now(), reservationKafka);
+        emailService.sendReservationEmail(reservationKafka, "cancel-reservation", "Cancel reservation");
     }
 
     @KafkaListener(topics = "payment-confirmation-topic")
