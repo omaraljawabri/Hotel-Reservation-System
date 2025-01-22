@@ -1,6 +1,7 @@
 package com.omar.hotel_reservation.services;
 
 import com.omar.hotel_reservation.producers.auth.AuthConfirmation;
+import com.omar.hotel_reservation.producers.payment.PaymentKafka;
 import com.omar.hotel_reservation.producers.reservation.ReservationKafka;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -75,6 +76,35 @@ public class EmailService {
             log.info(String.format("INFO - Email successfully sent to %s with template %s ", reservationKafka.email(), templateName));
         } catch (MessagingException e) {
             log.warn("WARNING - Cannot send Email to {} ", reservationKafka.email());
+        }
+    }
+
+    @Async
+    public void sendPaymentEmail(PaymentKafka paymentKafka, String templateName, String subject) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, UTF_8.name());
+        helper.setFrom(MAIL_SENDER);
+
+        Context context = new Context();
+        context.setVariable("firstName", paymentKafka.firstName());
+        context.setVariable("lastName", paymentKafka.lastName());
+        context.setVariable("method", paymentKafka.method());
+        context.setVariable("amount", paymentKafka.amount());
+        context.setVariable("currency", paymentKafka.currency());
+        context.setVariable("paymentDate", paymentKafka.paymentDate());
+        context.setVariable("hotelName", paymentKafka.hotelName());
+        context.setVariable("roomNumber", paymentKafka.roomNumber());
+        helper.setSubject(subject);
+
+        try {
+            String htmlContent = springTemplateEngine.process(templateName, context);
+            helper.setText(htmlContent, true);
+
+            helper.setTo(paymentKafka.email());
+            mailSender.send(mimeMessage);
+            log.info(String.format("INFO - Email successfully sent to %s with template %s ", paymentKafka.email(), templateName));
+        } catch (MessagingException e) {
+            log.warn("WARNING - Cannot send Email to {} ", paymentKafka.email());
         }
     }
 }
