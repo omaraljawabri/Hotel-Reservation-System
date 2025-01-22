@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #007BFF;
+        }
+        .content p {
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            background: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Welcome, <span th:text="${firstName} + ' ' + ${lastName}"></span>!</h1>
+    </div>
+    <div class="content">
+        <p>Thank you for registering with us. To complete your registration, please confirm your email address by clicking the button below:</p>
+        <p style="text-align: center;">
+            <a class="btn" th:href="${verificationLink}">Confirm Your Account</a>
+        </p>
+        <p>If you didn't create an account, please ignore this email.</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 Hotel Reservation. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
