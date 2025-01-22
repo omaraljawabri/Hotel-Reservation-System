@@ -64,6 +64,7 @@ public class PaymentService {
                 userResponseDTO.email(),
                 payment.getPaymentMethod(),
                 payment.getAmount(),
+                payment.getCurrency(),
                 payment.getPaymentDate(),
                 hotelResponseDTO.name(),
                 roomResponseDTO.roomNumber()
@@ -93,6 +94,7 @@ public class PaymentService {
                 userResponseDTO.email(),
                 payment.getPaymentMethod(),
                 payment.getAmount(),
+                payment.getCurrency(),
                 payment.getPaymentDate(),
                 hotelResponseDTO.name(),
                 roomResponseDTO.roomNumber()

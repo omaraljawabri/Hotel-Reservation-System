@@ -9,6 +9,7 @@ public record PaymentKafka(
         String email,
         PaymentMethod method,
         BigDecimal amount,
+        String currency,
         LocalDateTime paymentDate,
         String hotelName,
         Integer roomNumber
