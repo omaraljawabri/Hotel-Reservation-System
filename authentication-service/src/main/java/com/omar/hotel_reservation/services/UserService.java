@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class UserService {
     private final UserMapper mapper;
     private final AuthProducer authProducer;
 
+    @Transactional
     public void registerUser(RegisterRequestDTO registerRequestDTO) {
         if (userRepository.findByEmail(registerRequestDTO.email()).isPresent()){
             throw new UserAlreadyExistsException("User with email : "+registerRequestDTO.email()+ " already exists");

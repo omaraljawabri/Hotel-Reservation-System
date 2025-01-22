@@ -11,6 +11,7 @@ import com.omar.hotel_reservation.repositories.ChangePasswordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class ChangePasswordService {
     private final UserService userService;
     private final AuthProducer authProducer;
 
+    @Transactional
     public void requestChangePassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
         User user = userService.findByEmail(changePasswordRequestDTO.email());
         String verificationCode = UUID.randomUUID().toString();

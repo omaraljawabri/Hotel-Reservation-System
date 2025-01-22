@@ -85,6 +85,7 @@ public class ReservationService {
         return forEachReservation(reservations);
     }
 
+    @Transactional
     public void cancelReservation(Long id, Long userId) {
         Reservation reservation = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", id)));
