@@ -1,16 +1,15 @@
 package com.omar.hotel_reservation.services;
 
-import com.omar.hotel_reservation.dtos.request.ChangePasswordRequestDTO;
 import com.omar.hotel_reservation.dtos.request.LoginRequestDTO;
 import com.omar.hotel_reservation.dtos.request.RegisterRequestDTO;
 import com.omar.hotel_reservation.dtos.response.LoginResponseDTO;
 import com.omar.hotel_reservation.dtos.response.UserResponseDTO;
-import com.omar.hotel_reservation.entities.ChangePassword;
 import com.omar.hotel_reservation.entities.User;
 import com.omar.hotel_reservation.exceptions.InvalidCodeException;
 import com.omar.hotel_reservation.exceptions.UserAlreadyExistsException;
 import com.omar.hotel_reservation.kafka.AuthConfirmation;
-import com.omar.hotel_reservation.kafka.AuthProducer;
+import com.omar.hotel_reservation.kafka.ChangePasswordProducer;
+import com.omar.hotel_reservation.kafka.RegisterProducer;
 import com.omar.hotel_reservation.mappers.UserMapper;
 import com.omar.hotel_reservation.repositories.UserRepository;
 import jakarta.validation.ValidationException;
@@ -29,7 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper mapper;
-    private final AuthProducer authProducer;
+    private final RegisterProducer registerProducer;
 
     @Transactional
     public void registerUser(RegisterRequestDTO registerRequestDTO) {
@@ -42,7 +41,7 @@ public class UserService {
         user.setPassword(password);
         user.setVerificationCode(verificationCode);
         user.setExpirationCodeTime(LocalDateTime.now().plusHours(24));
-        authProducer.sendAuthOrChangePasswordConfirmation(new AuthConfirmation(
+        registerProducer.sendRegisterConfirmation(new AuthConfirmation(
                 String.format("http://localhost:8080/api/v1/auth/verify?code=%s", verificationCode),
                 user.getFirstName(),
                 user.getLastName(),

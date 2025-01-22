@@ -6,7 +6,8 @@ import com.omar.hotel_reservation.entities.ChangePassword;
 import com.omar.hotel_reservation.entities.User;
 import com.omar.hotel_reservation.exceptions.InvalidCodeException;
 import com.omar.hotel_reservation.kafka.AuthConfirmation;
-import com.omar.hotel_reservation.kafka.AuthProducer;
+import com.omar.hotel_reservation.kafka.ChangePasswordProducer;
+import com.omar.hotel_reservation.kafka.RegisterProducer;
 import com.omar.hotel_reservation.repositories.ChangePasswordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +23,7 @@ public class ChangePasswordService {
 
     private final ChangePasswordRepository changePasswordRepository;
     private final UserService userService;
-    private final AuthProducer authProducer;
+    private final ChangePasswordProducer changePasswordProducer;
 
     @Transactional
     public void requestChangePassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
@@ -30,8 +31,8 @@ public class ChangePasswordService {
         String verificationCode = UUID.randomUUID().toString();
         ChangePassword changePassword = ChangePassword.builder().verificationCode(verificationCode).expirationCodeTime(LocalDateTime.now().plusDays(2))
                 .user(user).build();
-        authProducer.sendAuthOrChangePasswordConfirmation(new AuthConfirmation(
-                String.format("http://localhost:8080/api/v1/auth/verify?code=%s", verificationCode),
+        changePasswordProducer.sendChangePasswordConfirmation(new AuthConfirmation(
+                String.format("http://localhost:8080/api/v1/auth/change-password/verify?code=%s", verificationCode),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail()

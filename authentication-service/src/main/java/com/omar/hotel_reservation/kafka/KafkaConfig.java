@@ -9,9 +9,16 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     @Bean
-    public NewTopic authTopic(){
+    public NewTopic registerTopic(){
         return TopicBuilder
-                .name("auth-topic")
+                .name("register-topic")
+                .build();
+    }
+
+    @Bean
+    public NewTopic changePasswordTopic(){
+        return TopicBuilder
+                .name("change-password-topic")
                 .build();
     }
 }

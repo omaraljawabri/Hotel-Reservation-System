@@ -11,15 +11,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class AuthProducer {
+public class ChangePasswordProducer {
 
     private final KafkaTemplate<String, AuthConfirmation> kafkaTemplate;
 
-    public void sendAuthOrChangePasswordConfirmation(AuthConfirmation authConfirmation){
-        log.info("Sending auth/change-password confirmation");
+    public void sendChangePasswordConfirmation(AuthConfirmation authConfirmation){
         Message<AuthConfirmation> message = MessageBuilder
                 .withPayload(authConfirmation)
-                .setHeader(KafkaHeaders.TOPIC, "auth-topic")
+                .setHeader(KafkaHeaders.TOPIC, "change-password-topic")
                 .build();
         kafkaTemplate.send(message);
     }
