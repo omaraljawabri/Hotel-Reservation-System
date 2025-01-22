@@ -22,3 +22,123 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+
+  postgres-auth:
+    container_name: authentication
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authentication-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data-auth:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-hotel:
+    container_name: hotel
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hotel-db
+    expose:
+      - "5433"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data-hotel:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-payment:
+    container_name: payment
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment-db
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-data-payment:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-reservation:
+    container_name: reservation
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reservation-db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-data-reservation:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-room:
+    container_name: room
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: room-db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-data-room:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  mail-dev:
+    container_name: mail-dev
+    image: maildev/maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
+
+  mongodb:
+    image: mongo
+    container_name: mongo_db
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=omar
+      - MONGO_INITDB_ROOT_PASSWORD=omar
+    networks:
+      - hotel-reservation-microservices
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_BASICAUTH_USERNAME=omar
+      - ME_CONFIG_BASICAUTH_PASSWORD=mongo
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=omar
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=omar
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    links:
+      - mongodb
+    networks:
+      - hotel-reservation-microservices
+networks:
+  hotel-reservation-microservices:
+    driver: bridge
+
+volumes:
+  postgres-data-auth:
+  postgres-data-hotel:
+  postgres-data-payment:
+  postgres-data-reservation:
+  postgres-data-room:
+  mongo:
