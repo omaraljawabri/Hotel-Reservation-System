@@ -12,6 +12,9 @@ import com.omar.hotel_reservation.entities.Status;
 import com.omar.hotel_reservation.exceptions.BusinessException;
 import com.omar.hotel_reservation.exceptions.EntityDoesntBelongException;
 import com.omar.hotel_reservation.exceptions.UserNotFoundException;
+import com.omar.hotel_reservation.kafka.CancelReservationProducer;
+import com.omar.hotel_reservation.kafka.ConfirmReservationProducer;
+import com.omar.hotel_reservation.kafka.ReservationKafka;
 import com.omar.hotel_reservation.mappers.ReservationMapper;
 import com.omar.hotel_reservation.repositories.ReservationRepository;
 import com.omar.hotel_reservation.utils.HotelStatus;
@@ -36,6 +39,8 @@ public class ReservationService {
     private final HotelClient hotelClient;
     private final RoomClient roomClient;
     private final ReservationMapper mapper;
+    private final ConfirmReservationProducer confirmReservationProducer;
+    private final CancelReservationProducer cancelReservationProducer;
 
     @Transactional
     public ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO) {
@@ -51,7 +56,18 @@ public class ReservationService {
         Reservation reservation = mapper.toReservation(reservationRequestDTO);
         reservation.setBookingDate(LocalDateTime.now());
         reservation.setStatus(Status.PENDING);
-        // to do -> send email to user
+        confirmReservationProducer.sendConfirmReservationTopic(new ReservationKafka(
+                userResponseDTO.firstName(),
+                userResponseDTO.lastName(),
+                userResponseDTO.email(),
+                roomResponseDTO.roomNumber(),
+                hotelResponseDTO.name(),
+                hotelResponseDTO.country(),
+                hotelResponseDTO.state(),
+                hotelResponseDTO.city(),
+                reservation.getCheckInDate(),
+                reservation.getCheckOutDate()
+        ));
         updateRoom(roomResponseDTO, RoomStatus.RESERVED);
         Reservation reservationSaved = repository.save(reservation);
         return mapper.toReservationResponse(reservationSaved, userResponseDTO, hotelResponseDTO, roomResponseDTO);
@@ -72,6 +88,8 @@ public class ReservationService {
     public void cancelReservation(Long id, Long userId) {
         Reservation reservation = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", id)));
+        UserResponseDTO userResponseDTO = validateUser(userId);
+        HotelResponseDTO hotelResponseDTO = validateHotel(reservation.getHotelId());
         if (!Objects.equals(reservation.getUserId(), userId)){
             throw new EntityDoesntBelongException(String.format("Reservation with id %d doesn't belong to user with id %d", reservation.getId(), userId));
         }
@@ -80,8 +98,19 @@ public class ReservationService {
         }
         reservation.setStatus(Status.CANCELLED);
         repository.save(reservation);
-        // to do -> send e-mail to user
         RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
+        cancelReservationProducer.sendCancelReservationTopic(new ReservationKafka(
+                userResponseDTO.firstName(),
+                userResponseDTO.lastName(),
+                userResponseDTO.email(),
+                roomResponseDTO.roomNumber(),
+                hotelResponseDTO.name(),
+                hotelResponseDTO.country(),
+                hotelResponseDTO.state(),
+                hotelResponseDTO.city(),
+                reservation.getCheckInDate(),
+                reservation.getCheckOutDate()
+        ));
         updateRoom(roomResponseDTO, RoomStatus.AVAILABLE);
     }
 
