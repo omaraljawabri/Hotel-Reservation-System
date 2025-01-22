@@ -21,6 +21,7 @@ import com.omar.hotel_reservation.utils.HotelStatus;
 import com.omar.hotel_reservation.utils.RoomStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -178,5 +179,14 @@ public class ReservationService {
             userReservationResponseDTOS.add(mapper.toUserReservationResponse(reservation, hotelResponseDTO, roomResponseDTO));
         }
         return userReservationResponseDTOS;
+    }
+
+    @Scheduled(fixedRate = 300000)
+    public void updateRoomAfterCheckOut(){
+        List<Reservation> reservations = repository.findAllByCheckOutDateBefore(LocalDate.now());
+        for (Reservation reservation : reservations){
+            RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
+            updateRoom(roomResponseDTO, RoomStatus.AVAILABLE);
+        }
     }
 }
