@@ -1,6 +1,7 @@
 package com.omar.hotel_reservation.services;
 
 import com.omar.hotel_reservation.producers.auth.AuthConfirmation;
+import com.omar.hotel_reservation.producers.reservation.ReservationKafka;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class EmailService {
     private static final String MAIL_SENDER = "omar@omartest.com";
 
     @Async
-    public void sendAuthEmail(AuthConfirmation authConfirmation, String templateName) throws MessagingException {
+    public void sendAuthEmail(AuthConfirmation authConfirmation, String templateName, String subject) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, UTF_8.name());
         helper.setFrom(MAIL_SENDER);
@@ -34,7 +35,7 @@ public class EmailService {
         context.setVariable("firstName", authConfirmation.firstName());
         context.setVariable("lastName", authConfirmation.lastName());
         context.setVariable("verificationLink", authConfirmation.verificationLink());
-        helper.setSubject("Account confirmation");
+        helper.setSubject(subject);
 
         try {
             String htmlContent = springTemplateEngine.process(templateName, context);
@@ -45,6 +46,35 @@ public class EmailService {
             log.info(String.format("INFO - Email successfully sent to %s with template %s ", authConfirmation.email(), templateName));
         } catch (MessagingException e) {
             log.warn("WARNING - Cannot send Email to {} ", authConfirmation.email());
+        }
+    }
+
+    @Async
+    public void sendReservationEmail(ReservationKafka reservationKafka, String templateName, String subject) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, UTF_8.name());
+        helper.setFrom(MAIL_SENDER);
+
+        Context context = new Context();
+        context.setVariable("firstName", reservationKafka.firstName());
+        context.setVariable("lastName", reservationKafka.lastName());
+        context.setVariable("roomNumber", reservationKafka.roomNumber());
+        context.setVariable("hotelName", reservationKafka.hotelName());
+        context.setVariable("country", reservationKafka.country());
+        context.setVariable("state", reservationKafka.state());
+        context.setVariable("city", reservationKafka.city());
+        context.setVariable("checkInDate", reservationKafka.checkInDate());
+        context.setVariable("checkOutDate", reservationKafka.checkOutDate());
+        helper.setSubject(subject);
+        try {
+            String htmlContent = springTemplateEngine.process(templateName, context);
+            helper.setText(htmlContent, true);
+
+            helper.setTo(reservationKafka.email());
+            mailSender.send(mimeMessage);
+            log.info(String.format("INFO - Email successfully sent to %s with template %s ", reservationKafka.email(), templateName));
+        } catch (MessagingException e) {
+            log.warn("WARNING - Cannot send Email to {} ", reservationKafka.email());
         }
     }
 }
