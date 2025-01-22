@@ -82,6 +82,9 @@ public class UserService {
     public UserResponseDTO findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id: " + id + " not found"));
+        if (!user.isVerified()){
+            throw new ValidationException(String.format("User with id: %d is not verified", id));
+        }
         return mapper.toUserResponse(user);
     }
 }
