@@ -9,6 +9,8 @@ import com.omar.hotel_reservation.entities.ChangePassword;
 import com.omar.hotel_reservation.entities.User;
 import com.omar.hotel_reservation.exceptions.InvalidCodeException;
 import com.omar.hotel_reservation.exceptions.UserAlreadyExistsException;
+import com.omar.hotel_reservation.kafka.AuthConfirmation;
+import com.omar.hotel_reservation.kafka.AuthProducer;
 import com.omar.hotel_reservation.mappers.UserMapper;
 import com.omar.hotel_reservation.repositories.UserRepository;
 import jakarta.validation.ValidationException;
@@ -26,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper mapper;
+    private final AuthProducer authProducer;
 
     public void registerUser(RegisterRequestDTO registerRequestDTO) {
         if (userRepository.findByEmail(registerRequestDTO.email()).isPresent()){
@@ -37,8 +40,12 @@ public class UserService {
         user.setPassword(password);
         user.setVerificationCode(verificationCode);
         user.setExpirationCodeTime(LocalDateTime.now().plusHours(24));
-        //to do -> send email, communication with NotificationService using Kafka
-        //obs: use gateway port in the url
+        authProducer.sendAuthOrChangePasswordConfirmation(new AuthConfirmation(
+                String.format("http://localhost:8080/api/v1/auth/verify?code=%s", verificationCode),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail()
+        ));
         userRepository.save(user);
     }
 
