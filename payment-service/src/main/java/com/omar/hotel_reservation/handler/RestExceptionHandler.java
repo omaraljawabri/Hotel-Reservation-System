@@ -1,6 +1,7 @@
 package com.omar.hotel_reservation.handler;
 
 import com.omar.hotel_reservation.exceptions.BusinessException;
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,19 @@ public class RestExceptionHandler {
                 ErrorMessage.builder()
                         .timestamp(LocalDateTime.now())
                         .title("Business exception")
+                        .message(exception.getMessage())
+                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(FeignException.class)
+    private ResponseEntity<ErrorMessage> handler(FeignException exception){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorMessage.builder()
+                        .timestamp(LocalDateTime.now())
+                        .title("Error during trying to establish synchronous connection with other service")
                         .message(exception.getMessage())
                         .httpStatus(HttpStatus.BAD_REQUEST)
                         .statusCode(HttpStatus.BAD_REQUEST.value())
