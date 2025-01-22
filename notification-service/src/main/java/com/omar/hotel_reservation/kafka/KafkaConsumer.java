@@ -26,13 +26,14 @@ public class KafkaConsumer {
     public void consumeRegisterConfirmation(AuthConfirmation authConfirmation) throws MessagingException {
         log.info("Consuming records from topic: register-topic");
         notificationService.sendEmail(NotificationType.REGISTER_CONFIRMATION, LocalDateTime.now(), authConfirmation);
-        emailService.sendRegisterConfirmationEmail(authConfirmation);
+        emailService.sendAuthEmail(authConfirmation, "register-confirmation");
     }
 
     @KafkaListener(topics = "change-password-topic")
-    public void consumeChangePasswordConfirmation(AuthConfirmation authConfirmation){
+    public void consumeChangePasswordConfirmation(AuthConfirmation authConfirmation) throws MessagingException {
         log.info("Consuming records from topic: change-password-topic");
         notificationService.sendEmail(NotificationType.CHANGE_PASSWORD_CONFIRMATION, LocalDateTime.now(), authConfirmation);
+        emailService.sendAuthEmail(authConfirmation, "change-password-confirmation");
     }
 
     @KafkaListener(topics = "confirm-reservation-topic")

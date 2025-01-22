@@ -7,12 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -24,11 +22,13 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine springTemplateEngine;
 
+    private static final String MAIL_SENDER = "omar@omartest.com";
 
-    public void sendRegisterConfirmationEmail(AuthConfirmation authConfirmation) throws MessagingException {
+    @Async
+    public void sendAuthEmail(AuthConfirmation authConfirmation, String templateName) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, UTF_8.name());
-        helper.setFrom("omar@omartest.com");
+        helper.setFrom(MAIL_SENDER);
 
         Context context = new Context();
         context.setVariable("firstName", authConfirmation.firstName());
@@ -37,12 +37,12 @@ public class EmailService {
         helper.setSubject("Account confirmation");
 
         try {
-            String htmlContent = springTemplateEngine.process("register-confirmation", context);
+            String htmlContent = springTemplateEngine.process(templateName, context);
             helper.setText(htmlContent, true);
 
             helper.setTo(authConfirmation.email());
             mailSender.send(mimeMessage);
-            log.info(String.format("INFO - Email successfully sent to %s with template %s ", authConfirmation.email(), "register-confirmation"));
+            log.info(String.format("INFO - Email successfully sent to %s with template %s ", authConfirmation.email(), templateName));
         } catch (MessagingException e) {
             log.warn("WARNING - Cannot send Email to {} ", authConfirmation.email());
         }
