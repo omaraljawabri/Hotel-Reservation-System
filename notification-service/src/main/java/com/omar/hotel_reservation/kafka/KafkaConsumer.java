@@ -51,14 +51,16 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(topics = "payment-confirmation-topic")
-    public void consumePaymentConfirmation(PaymentKafka paymentKafka){
+    public void consumePaymentConfirmation(PaymentKafka paymentKafka) throws MessagingException {
         log.info("Consuming records from topic: payment-confirmation-topic");
         notificationService.sendEmail(NotificationType.CONFIRM_PAYMENT, LocalDateTime.now(), paymentKafka);
+        emailService.sendPaymentEmail(paymentKafka, "payment-confirmation", "Payment confirmation");
     }
 
     @KafkaListener(topics = "payment-refund-topic")
-    public void consumePaymentRefund(PaymentKafka paymentKafka){
+    public void consumePaymentRefund(PaymentKafka paymentKafka) throws MessagingException {
         log.info("Consuming records from topic: payment-refund-topic");
         notificationService.sendEmail(NotificationType.REFUND_PAYMENT, LocalDateTime.now(), paymentKafka);
+        emailService.sendPaymentEmail(paymentKafka, "payment-refund", "Payment refund");
     }
 }
