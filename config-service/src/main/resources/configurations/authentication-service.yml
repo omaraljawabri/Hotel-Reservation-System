@@ -26,7 +26,3 @@ spring:
       properties:
         spring.json.type.mapping: authConfirmation:com.omar.hotel_reservation.kafka.AuthConfirmation
 
-hotel-reservation:
-  auth:
-    token:
-      secret: c1c1054fa520d53fe31144e217e73cc286e37509

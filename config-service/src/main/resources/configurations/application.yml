@@ -10,3 +10,7 @@ spring:
   cloud:
     config:
       override-system-properties: false
+hotel-reservation:
+  auth:
+    token:
+      secret: c1c1054fa520d53fe31144e217e73cc286e37509
