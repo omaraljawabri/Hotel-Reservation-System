@@ -14,6 +14,7 @@ public class HotelMapper {
                 .description(hotelRequestDTO.description())
                 .country(hotelRequestDTO.country())
                 .state(hotelRequestDTO.state())
+                .address(hotelRequestDTO.address())
                 .city(hotelRequestDTO.city())
                 .postalCode(hotelRequestDTO.postalCode())
                 .category(hotelRequestDTO.category())
