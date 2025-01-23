@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @FeignClient(
         name = "reservation-client",
-        url = "http://localhost:8030/api/v1/reservation" // change port to gateway port
+        url = "http://localhost:8080/api/v1/reservation"
 )
 public interface ReservationClient {
 

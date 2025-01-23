@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @FeignClient(
         name = "hotel-service",
-        url = "http://localhost:8010/api/v1/hotel" //to do - change port to gateway port
+        url = "http://localhost:8080/api/v1/hotel"
 )
 public interface HotelClient {
 

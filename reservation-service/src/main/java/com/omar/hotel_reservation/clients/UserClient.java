@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @FeignClient(
         name = "authentication-service",
-        url = "http://localhost:8000/api/v1/user" // to do - change port to gateway port
+        url = "http://localhost:8080/api/v1/user"
 )
 public interface UserClient {
 

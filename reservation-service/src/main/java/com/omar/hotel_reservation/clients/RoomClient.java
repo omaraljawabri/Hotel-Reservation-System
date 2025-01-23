@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @FeignClient(
         name = "room-service",
-        url = "http://localhost:8020/api/v1/room"
+        url = "http://localhost:8080/api/v1/room"
 )
 public interface RoomClient {
 
