@@ -8,7 +8,6 @@ import com.omar.hotel_reservation.entities.User;
 import com.omar.hotel_reservation.exceptions.InvalidCodeException;
 import com.omar.hotel_reservation.exceptions.UserAlreadyExistsException;
 import com.omar.hotel_reservation.kafka.AuthConfirmation;
-import com.omar.hotel_reservation.kafka.ChangePasswordProducer;
 import com.omar.hotel_reservation.kafka.RegisterProducer;
 import com.omar.hotel_reservation.mappers.UserMapper;
 import com.omar.hotel_reservation.repositories.UserRepository;
@@ -87,5 +86,18 @@ public class UserService {
             throw new ValidationException(String.format("User with id: %d is not verified", id));
         }
         return mapper.toUserResponse(user);
+    }
+
+    public Boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public void validateUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with email: %s, not found", email)));
+        user.setExpirationCodeTime(null);
+        user.setVerificationCode(null);
+        user.setVerified(true);
+        userRepository.save(user);
     }
 }

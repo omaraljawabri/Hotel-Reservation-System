@@ -4,10 +4,7 @@ import com.omar.hotel_reservation.dtos.response.UserResponseDTO;
 import com.omar.hotel_reservation.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -19,5 +16,16 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> findUserById(@PathVariable("id") Long id){
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/exists/{email}")
+    public ResponseEntity<Boolean> existsById(@PathVariable("email") String email){
+        return ResponseEntity.ok(service.existsByEmail(email));
+    }
+
+    @PostMapping("/validate/{email}")
+    public ResponseEntity<Void> validateUser(@PathVariable("email") String email){
+        service.validateUser(email);
+        return ResponseEntity.ok().build();
     }
 }
