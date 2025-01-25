@@ -25,33 +25,34 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final HotelClient hotelClient;
     private final RoomMapper mapper;
+    private final SystemTokenService systemTokenService;
 
     public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
-        HotelResponseDTO hotel = hotelClient.findHotelById(roomRequestDTO.hotelId())
+        HotelResponseDTO hotel = hotelClient.findHotelById(roomRequestDTO.hotelId(), systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id: %d, not found", roomRequestDTO.hotelId())));
         Room roomSaved = roomRepository.save(mapper.toRoom(roomRequestDTO));
         return mapper.toRoomResponse(roomSaved, hotel);
     }
 
     public Page<Room> findRoomsByHotelId(Long hotelId, int page, int quantity) {
-        if (hotelClient.findHotelById(hotelId).isEmpty()) {
+        if (hotelClient.findHotelById(hotelId, systemTokenService.generateToken()).isEmpty()) {
             throw new EntityNotFoundException(String.format("Hotel with id: %d, not found", hotelId));
         }
         return roomRepository.findAllByHotelId(hotelId, PageRequest.of(page, quantity));
     }
 
     public List<Room> findRoomsAvailableByHotelId(Long hotelId) {
-        if (hotelClient.findHotelById(hotelId).isEmpty()){
+        if (hotelClient.findHotelById(hotelId, systemTokenService.generateToken()).isEmpty()){
             throw new EntityNotFoundException(String.format("Hotel with id: %d, not found", hotelId));
         }
         return roomRepository.findAllByHotelIdAndStatus(hotelId, RoomStatus.AVAILABLE);
     }
 
     public RoomResponseDTO updateRoom(RoomPutRequestDTO roomPutRequestDTO) {
-        if (roomPutRequestDTO.hotelId() != null && hotelClient.findHotelById(roomPutRequestDTO.hotelId()).isEmpty()){
+        if (roomPutRequestDTO.hotelId() != null && hotelClient.findHotelById(roomPutRequestDTO.hotelId(), systemTokenService.generateToken()).isEmpty()){
             throw new EntityNotFoundException(String.format("Hotel with id: %d, not found", roomPutRequestDTO.hotelId()));
         }
-        HotelResponseDTO hotel = hotelClient.findHotelById(roomPutRequestDTO.hotelId()).get();
+        HotelResponseDTO hotel = hotelClient.findHotelById(roomPutRequestDTO.hotelId(), systemTokenService.generateToken()).get();
         Room room = roomRepository.findById(roomPutRequestDTO.id())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", roomPutRequestDTO.id())));
         Room roomValidated = validateFields(roomPutRequestDTO, room);
