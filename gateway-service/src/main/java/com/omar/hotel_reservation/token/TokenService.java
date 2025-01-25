@@ -1,4 +1,4 @@
-package com.omar.hotel_reservation;
+package com.omar.hotel_reservation.token;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
