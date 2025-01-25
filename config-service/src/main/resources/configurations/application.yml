@@ -14,3 +14,7 @@ hotel-reservation:
   auth:
     token:
       secret: c1c1054fa520d53fe31144e217e73cc286e37509
+system:
+  token:
+    email: admin@example.com
+    password: admin
