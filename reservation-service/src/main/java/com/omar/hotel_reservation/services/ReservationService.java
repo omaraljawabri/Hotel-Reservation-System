@@ -42,6 +42,7 @@ public class ReservationService {
     private final ReservationMapper mapper;
     private final ConfirmReservationProducer confirmReservationProducer;
     private final CancelReservationProducer cancelReservationProducer;
+    private final SystemTokenService systemTokenService;
 
     @Transactional
     public ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO) {
@@ -146,17 +147,17 @@ public class ReservationService {
     }
 
     private UserResponseDTO validateUser(Long userId){
-        return userClient.findUserById(userId)
+        return userClient.findUserById(userId, systemTokenService.generateToken())
                 .orElseThrow(() -> new UserNotFoundException(String.format("User with id: %d, not found", userId)));
     }
 
     private HotelResponseDTO validateHotel(Long hotelId){
-        return hotelClient.findHotelById(hotelId)
+        return hotelClient.findHotelById(hotelId, systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id: %d, not found", hotelId)));
     }
 
     private RoomResponseDTO validateRoom(Long roomId){
-        return roomClient.findRoomById(roomId)
+        return roomClient.findRoomById(roomId, systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", roomId)));
     }
 
@@ -168,7 +169,7 @@ public class ReservationService {
                 roomResponseDTO.capacity(),
                 roomResponseDTO.type(),
                 status
-        ));
+        ), systemTokenService.generateToken());
     }
 
     private List<UserReservationResponseDTO> forEachReservation(List<Reservation> reservations){
