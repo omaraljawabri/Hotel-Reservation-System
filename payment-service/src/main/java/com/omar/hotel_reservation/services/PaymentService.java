@@ -36,6 +36,7 @@ public class PaymentService {
     private final RoomClient roomClient;
     private final UserClient userClient;
     private final HotelClient hotelClient;
+    private final SystemTokenService systemTokenService;
     private final PaymentMapper mapper;
     private final PaymentConfirmationProducer paymentConfirmationProducer;
     private final PaymentRefundProducer paymentRefundProducer;
@@ -102,22 +103,22 @@ public class PaymentService {
     }
 
     private RoomResponseDTO validateRoom(Long roomId){
-        return roomClient.findRoomById(roomId)
+        return roomClient.findRoomById(roomId, systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Room with id: %d, not found", roomId)));
     }
 
     private HotelResponseDTO validateHotel(Long hotelId){
-        return hotelClient.findHotelById(hotelId)
+        return hotelClient.findHotelById(hotelId, systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id: %d, not found", hotelId)));
     }
 
     private UserResponseDTO validateUser(Long userId){
-        return userClient.findUserById(userId)
+        return userClient.findUserById(userId, systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User with id: %d, not found", userId)));
     }
 
     private ReservationResponseDTO validateReservation(Long reservationId){
-        return reservationClient.findReservationById(reservationId)
+        return reservationClient.findReservationById(reservationId, systemTokenService.generateToken())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Reservation with id: %d, not found", reservationId)));
     }
 
@@ -131,7 +132,7 @@ public class PaymentService {
                 reservationResponseDTO.checkInDate(),
                 reservationResponseDTO.checkOutDate(),
                 status
-        ));
+        ), systemTokenService.generateToken());
     }
 
     private void updateRoom(RoomResponseDTO roomResponseDTO, RoomStatus status) {
@@ -142,7 +143,7 @@ public class PaymentService {
                 roomResponseDTO.capacity(),
                 roomResponseDTO.type(),
                 status
-        ));
+        ), systemTokenService.generateToken());
     }
 
 }
