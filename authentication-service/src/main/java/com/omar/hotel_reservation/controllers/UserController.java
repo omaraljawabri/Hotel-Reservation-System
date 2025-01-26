@@ -53,7 +53,8 @@ public class UserController {
     }
 
     @Operation(summary = "This endpoint is responsible for validate an user by their email",
-            method = "POST")
+            method = "POST",
+            description = "Note: this endpoint is only used in OpenFeign internal connections for authentication")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operation successful"),
             @ApiResponse(responseCode = "404", description = "Not found",
