@@ -31,3 +31,21 @@ spring:
           uri: lb:http://ROOM-SERVICE
           predicates:
             - Path=/api/v1/room/**
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    urls:
+      - url: http://localhost:8000/v3/api-docs
+        name: authentication-service
+      - url: http://localhost:8010/v3/api-docs
+        name: hotel-service
+      - url: http://localhost:8040/v3/api-docs
+        name: payment-service
+      - url: http://localhost:8030/v3/api-docs
+        name: reservation-service
+      - url: http://localhost:8020/v3/api-docs
+        name: room-service
+
+

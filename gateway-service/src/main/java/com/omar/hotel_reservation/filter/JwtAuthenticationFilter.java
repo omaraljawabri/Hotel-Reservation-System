@@ -22,7 +22,9 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (exchange.getRequest().getPath().toString().startsWith("/api/v1/auth") || exchange.getRequest().getPath().toString().startsWith("/api/v1/user/exists")
-                || exchange.getRequest().getPath().toString().startsWith("/api/v1/user/validate")){
+                || exchange.getRequest().getPath().toString().startsWith("/api/v1/user/validate")
+        || exchange.getRequest().getPath().toString().startsWith("/v3/api-docs")
+        || exchange.getRequest().getPath().toString().startsWith("/swagger-ui")){
             return chain.filter(exchange);
         }
 
