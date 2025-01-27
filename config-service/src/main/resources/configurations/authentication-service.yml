@@ -25,4 +25,8 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: authConfirmation:com.omar.hotel_reservation.kafka.AuthConfirmation
-
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

@@ -25,3 +25,8 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: reservationKafka:com.omar.hotel_reservation.kafka.ReservationKafka
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
