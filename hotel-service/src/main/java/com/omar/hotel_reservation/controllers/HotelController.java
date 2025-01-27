@@ -36,7 +36,7 @@ public class HotelController {
             method = "POST",
             description = "Needs ROLE_ADMIN to be accessed")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operation successful"),
+            @ApiResponse(responseCode = "201", description = "Operation successful"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "500", description = "Error during operation(Internal server error)")
