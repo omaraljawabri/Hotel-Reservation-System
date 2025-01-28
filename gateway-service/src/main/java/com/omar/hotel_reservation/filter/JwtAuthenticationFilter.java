@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         try{
             String role = tokenService.validateAndExtractRole(token);
             if (!isAuthorized(role, exchange.getRequest().getPath().toString(), exchange.getRequest().getMethod().toString())){
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();
             }
         } catch (Exception e){
