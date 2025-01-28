@@ -144,4 +144,15 @@ public class RoomController {
     public ResponseEntity<List<Room>> findRoomsByType(@RequestParam RoomType type){
         return ResponseEntity.ok(roomService.findRoomsByType(type));
     }
+
+    @Operation(summary = "This endpoint is responsible for verify the service health",
+            method = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operation successful"),
+            @ApiResponse(responseCode = "500", description = "Error during operation(Internal server error)")
+    })
+    @GetMapping("/health")
+    public ResponseEntity<Void> verifyServiceHealth(){
+        return ResponseEntity.ok().build();
+    }
 }
