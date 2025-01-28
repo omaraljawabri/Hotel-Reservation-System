@@ -99,6 +99,7 @@ public class ReservationService {
         if (reservation.getCheckInDate().isBefore(LocalDate.now()) || reservation.getCheckInDate().equals(LocalDate.now())){
             throw new BusinessException("Your reservation time has already started, you can no longer cancel the reservation");
         }
+        reservation.setCancellationDate(LocalDateTime.now());
         reservation.setStatus(Status.CANCELLED);
         repository.save(reservation);
         RoomResponseDTO roomResponseDTO = validateRoom(reservation.getRoomId());
