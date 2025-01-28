@@ -1,0 +1,141 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+    networks:
+      - hotel-reservation-microservices
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: ms_kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://ms_kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-auth:
+    container_name: authentication
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authentication-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data-auth:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-hotel:
+    container_name: hotel
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hotel-db
+    expose:
+      - "5433"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data-hotel:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-payment:
+    container_name: payment
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment-db
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-data-payment:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-reservation:
+    container_name: reservation
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reservation-db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-data-reservation:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  postgres-room:
+    container_name: room
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: room-db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-data-room:/var/lib/postgresql/data
+    networks:
+      - hotel-reservation-microservices
+
+  mail-dev:
+    container_name: mail-dev
+    image: maildev/maildev
+    restart: always
+    ports:
+      - 1080:1080
+      - 1025:1025
+    networks:
+      - hotel-reservation-microservices
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=omar
+      - MONGO_INITDB_ROOT_PASSWORD=omar
+    networks:
+      - hotel-reservation-microservices
+networks:
+  hotel-reservation-microservices:
+    name: hotel-reservation-microservices
+    driver: bridge
+volumes:
+  postgres-data-auth:
+  postgres-data-hotel:
+  postgres-data-payment:
+  postgres-data-reservation:
+  postgres-data-room:
+  mongo:
