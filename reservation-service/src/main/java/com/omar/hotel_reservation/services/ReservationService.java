@@ -56,8 +56,8 @@ public class ReservationService {
             throw new BusinessException(String.format("Room with id: %d or Hotel with id: %d are not available", roomResponseDTO.id(), hotelResponseDTO.id()));
         }
         Reservation reservation = mapper.toReservation(reservationRequestDTO);
-        reservation.setBookingDate(LocalDateTime.now());
         reservation.setStatus(Status.PENDING);
+        reservation.setBookingDate(LocalDateTime.now());
         confirmReservationProducer.sendConfirmReservationTopic(new ReservationKafka(
                 userResponseDTO.firstName(),
                 userResponseDTO.lastName(),
