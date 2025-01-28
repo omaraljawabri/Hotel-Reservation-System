@@ -20,7 +20,7 @@ Following a microservices architecture, each service in this project has its own
 ## Communication between microservices
 Two types of communication were used to communicate between micro services: synchronous and asynchronous. OpenFeign was used for synchronous communication, while Apache Kafka was used for asynchronous communication. **The communication scheme is:**
 
-- Communication between any service with notification-service: Apache Kafka.
+- Communication between any service and notification-service: Apache Kafka.
 - Communication between two services that there are not notification-service: Open OpenFeign
 
 ## 📋 Requirements 
