@@ -16,10 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -64,6 +61,17 @@ public class PaymentController {
     @PostMapping(value = "/refund", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> refundPayment(@RequestBody @Valid RefundRequestDTO refundRequestDTO){
         paymentService.refundPayment(refundRequestDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "This endpoint is responsible for verify the service health",
+            method = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operation successful"),
+            @ApiResponse(responseCode = "500", description = "Error during operation(Internal server error)")
+    })
+    @GetMapping("/health")
+    public ResponseEntity<Void> verifyServiceHealth(){
         return ResponseEntity.ok().build();
     }
 }
