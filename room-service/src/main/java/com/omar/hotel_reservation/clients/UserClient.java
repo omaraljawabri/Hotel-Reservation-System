@@ -13,7 +13,7 @@ import java.util.Optional;
 @FeignClient(
         name = "authentication-service",
         contextId = "user-service",
-        url = "http://localhost:8080/api/v1/user"
+        url = "http://gateway-service:8080/api/v1/user"
 )
 @Headers("Authorization: {token}")
 public interface UserClient {

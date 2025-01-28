@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @FeignClient(
         name = "reservation-client",
-        url = "http://localhost:8080/api/v1/reservation"
+        url = "http://gateway-service:8080/api/v1/reservation"
 )
 @Headers("Authorization: {token}")
 public interface ReservationClient {

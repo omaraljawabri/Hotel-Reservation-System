@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(
         name = "authentication-service",
         contextId = "auth-service",
-        url = "http://localhost:8080/api/v1/auth"
+        url = "http://gateway-service:8080/api/v1/auth"
 )
 public interface AuthClient {
 
