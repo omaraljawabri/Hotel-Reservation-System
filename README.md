@@ -35,6 +35,7 @@ Two types of communication were used to communicate between micro services: sync
     4. Wait until all the containers are up and running
     5. Type the command: docker-compose -f docker-compose-services.yml up -d
     6. The application is up! http://localhost:8080
+    Note: running all the microservices can take a while depending on your computer's settings.
 
 ##  📄  Documentation 
 
@@ -47,6 +48,8 @@ Springdoc-openapi was used to document all services. You can access the individu
 - `http://localhost:8020/swagger-ui/index.html` -  **Room Service**
 - `http://localhost:8030/swagger-ui/index.html` -   **Reservation Service**
 - `http://localhost:8040/swagger-ui/index.html` -    **Payment Service**
+
+**Note**: To access the documentation you need to run the application.
 
 ##  💻  Project used technologies
 
