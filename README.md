@@ -60,4 +60,3 @@ Springdoc-openapi was used to document all services. You can access the individu
 - OpenFeign
 - Jib for docker images
 - MailDev
-![License](https://img.shields.io/badge/license-MIT-blue)
