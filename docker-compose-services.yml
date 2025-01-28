@@ -1,0 +1,322 @@
+services:
+  config-service:
+    image: omarjawabri/config-service-hotel-ms:latest
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "200M"
+    ports:
+      - "9999:9999"
+    healthcheck:
+      test: [ "CMD", "curl", "-I", "http://config-service:9999" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hotel-reservation-microservices
+
+  discovery-service:
+    image: omarjawabri/discovery-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8761:8761"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "200M"
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://discovery-service:8761" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      config-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  authentication-service:
+    image: omarjawabri/auth-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/authentication-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://authentication-service:8000/api/v1/auth/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  hotel-service:
+    image: omarjawabri/hotel-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8010:8010"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-hotel:5432/hotel-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://hotel-service:8010/api/v1/hotel/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      authentication-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  room-service:
+    image: omarjawabri/room-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8020:8020"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-room:5432/room-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://room-service:8020/api/v1/room/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      authentication-service:
+        condition: service_healthy
+      hotel-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  reservation-service:
+    image: omarjawabri/reservation-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8030:8030"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.7"
+          memory: "428M"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-reservation:5432/reservation-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://reservation-service:8030/api/v1/reservation/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      authentication-service:
+        condition: service_healthy
+      hotel-service:
+        condition: service_healthy
+      room-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  payment-service:
+    image: omarjawabri/payment-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8040:8040"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.7"
+          memory: "428M"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payment:5432/payment-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://payment-service:8040/api/v1/payment/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      authentication-service:
+        condition: service_healthy
+      hotel-service:
+        condition: service_healthy
+      room-service:
+        condition: service_healthy
+      reservation-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  notification-service:
+    image: omarjawabri/notification-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8050:8050"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_MAIL_HOST: mail-dev
+      SPRING_MAIL_PORT: 1025
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ms_kafka:9092
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://notification-service:8050/api/v1/notification/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      authentication-service:
+        condition: service_healthy
+      hotel-service:
+        condition: service_healthy
+      room-service:
+        condition: service_healthy
+      reservation-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+  gateway-service:
+    image: omarjawabri/gateway-service-hotel-ms:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "500M"
+    environment:
+      SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED: "true"
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: "authentication-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: "lb:http://authentication-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: "Path=/api/v1/auth/**"
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: "user-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: "lb:http://authentication-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: "Path=/api/v1/user/**"
+      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: "hotel-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_2_URI: "lb:http://hotel-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: "Path=/api/v1/hotel/**"
+      SPRING_CLOUD_GATEWAY_ROUTES_3_ID: "payment-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_3_URI: "lb:http://payment-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0: "Path=/api/v1/payment/**"
+      SPRING_CLOUD_GATEWAY_ROUTES_4_ID: "reservation-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_4_URI: "lb:http://reservation-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_4_PREDICATES_0: "Path=/api/v1/reservation/**"
+      SPRING_CLOUD_GATEWAY_ROUTES_5_ID: "room-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_5_URI: "lb:http://room-service"
+      SPRING_CLOUD_GATEWAY_ROUTES_5_PREDICATES_0: "Path=/api/v1/room/**"
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:9999
+      SPRINGDOC_API_DOCS_ENABLED: true
+      SPRINGDOC_API_DOCS_PATH: /v3/api-docs
+      SPRINGDOC_SWAGGER_UI_URLS[0].URL: http://authentication-service:8000/v3/api-docs
+      SPRINGDOC_SWAGGER_UI_URLS[0].NAME: authentication-service
+      SPRINGDOC_SWAGGER_UI_URLS[1].URL: http://hotel-service:8010/v3/api-docs
+      SPRINGDOC_SWAGGER_UI_URLS[1].NAME: hotel-service
+      SPRINGDOC_SWAGGER_UI_URLS[2].URL: http://payment-service:8040/v3/api-docs
+      SPRINGDOC_SWAGGER_UI_URLS[2].NAME: payment-service
+      SPRINGDOC_SWAGGER_UI_URLS[3].URL: http://reservation-service:8030/v3/api-docs
+      SPRINGDOC_SWAGGER_UI_URLS[3].NAME: reservation-service
+      SPRINGDOC_SWAGGER_UI_URLS[4].URL: http://room-service:8020/v3/api-docs
+      SPRINGDOC_SWAGGER_UI_URLS[4].NAME: room-service
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-service:8761/eureka
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      authentication-service:
+        condition: service_healthy
+      hotel-service:
+        condition: service_healthy
+      room-service:
+        condition: service_healthy
+      reservation-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    networks:
+      - hotel-reservation-microservices
+
+networks:
+  hotel-reservation-microservices:
+    external: true
