@@ -133,5 +133,16 @@ public class ReservationController {
     public ResponseEntity<ReservationGetResponseDTO> findReservationById(@PathVariable("id") Long id){
         return ResponseEntity.ok(reservationService.findById(id));
     }
+
+    @Operation(summary = "This endpoint is responsible for verify the service health",
+            method = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operation successful"),
+            @ApiResponse(responseCode = "500", description = "Error during operation(Internal server error)")
+    })
+    @GetMapping("/health")
+    public ResponseEntity<Void> verifyServiceHealth(){
+        return ResponseEntity.ok().build();
+    }
 }
 
